@@ -1,0 +1,135 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+@import "react-quill-new/dist/quill.snow.css";
+@import "highlight.js/styles/atom-one-dark.css";
+
+/* Custom styles for code blocks */
+.ql-editor pre {
+  background-color: #1e293b !important; /* slate-900 */
+  color: #f8fafc !important; /* slate-50 */
+  padding: 1.5rem !important;
+  border-radius: 1rem !important;
+  font-family: 'Fira Code', monospace !important;
+  font-size: 16px !important;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid #334155;
+}
+/* Ensure images in the rich text editor are responsive */
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+/* Bullet points and list styling fix */
+.ql-editor ul, .ql-editor ol {
+  padding-left: 2rem !important;
+  margin-bottom: 1rem;
+}
+
+.ql-editor ul li {
+  list-style-type: disc !important;
+  padding-left: 0.5rem !important;
+  margin-bottom: 0.5rem;
+}
+
+.ql-editor ol li {
+  list-style-type: decimal !important;
+  padding-left: 0.5rem !important;
+  margin-bottom: 0.5rem;
+}
+
+/* Fix for double dots and alignment */
+.ql-editor li::marker {
+  color: #f97316; /* Primary orange color for bullets */
+  font-size: 1.1em;
+}
+
+.ql-editor {
+  font-size: 20px !important;
+  line-height: 1.6;
+}
+
+@theme {
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-800: #9a3412;
+  --color-primary-900: #7c2d12;
+  --font-sans: "Lato", "sans-serif";
+  --background-premium: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm rounded-xl transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-md border-primary-200/50 bg-white/90;
+  }
+
+  .bg-gradient-premium {
+    background: var(--background-premium);
+  }
+  
+  .text-gradient {
+    background: var(--background-premium);
+    @apply bg-clip-text text-transparent;
+  }
+  
+  .btn {
+    @apply flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-primary {
+    background: var(--background-premium);
+    @apply text-white hover:opacity-90 shadow-lg shadow-orange-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300;
+  }
+  
+  .btn-danger {
+    @apply bg-red-50 text-red-600 hover:bg-red-100 border border-red-100;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors duration-200;
+  }
+
+  .nav-link.active {
+    @apply bg-primary-50 text-primary-700 font-medium;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-primary-400 focus:ring-4 focus:ring-primary-400/10 transition-all duration-200 placeholder:text-slate-400;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200/80 rounded-full hover:bg-slate-300 transition-colors;
+}
