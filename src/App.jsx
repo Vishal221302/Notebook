@@ -81,14 +81,33 @@ function AppContent() {
     }
   };
 
+  const handleReorderTopics = async (newTopics) => {
+    setTopics(newTopics);
+    try {
+      await api.reorderTopics(newTopics.map(t => t.id));
+    } catch (error) {
+      console.error("Error reordering topics:", error);
+      fetchData(); // Rollback
+    }
+  };
+
   return (
-    <Layout topics={topics} languages={languages} isAdmin={isAdminPath && !!user} user={user} onLogout={handleLogout}>
+    <Layout 
+      topics={topics} 
+      languages={languages} 
+      isAdmin={isAdminPath && !!user} 
+      user={user} 
+      onLogout={handleLogout}
+      onReorderTopics={handleReorderTopics}
+    >
       <Routes>
         {/* User Routes */}
-        <Route path="/" element={<LanguageTopics languages={languages} />} />
-        <Route path="/language/:id" element={<LanguageTopics languages={languages} />} />
+        <Route path="/" element={<LanguageTopics languages={languages} user={user} />} />
+        <Route path="/language/:id" element={<LanguageTopics languages={languages} user={user} />} />
         <Route path="/view-topic/:id" element={<TopicDetail readOnly={true} />} />
         <Route path="/login" element={<Login onLogin={handleLogin} user={user} />} />
+        <Route path="/add-topic" element={<AddEditTopic onSave={(data) => { addTopic(data); }} languages={languages} />} />
+
 
         {/* Admin Routes (Protected) */}
         <Route path="/admin" element={

@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { NavLink, useLocation, useMatch } from 'react-router-dom';
 import { Home, PlusCircle, Search, BookOpen, Settings, Globe, FileText, LogIn, ChevronRight } from 'lucide-react';
 import { cn } from '../utils/lib';
 
-export default function Sidebar({ topics = [], languages = [], isAdmin, onClose, className }) {
+export default function Sidebar({ topics = [], languages = [], isAdmin, onClose, className, onReorderTopics }) {
   const location = useLocation();
   const match = useMatch("/language/:id");
   const viewTopicMatch = useMatch("/view-topic/:id");
@@ -20,6 +21,35 @@ export default function Sidebar({ topics = [], languages = [], isAdmin, onClose,
       }
     }
   }
+
+  const [draggedTopicId, setDraggedTopicId] = useState(null);
+
+  const onDragStart = (e, id) => {
+    setDraggedTopicId(id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const onDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const onDrop = (e, targetId) => {
+    e.preventDefault();
+    if (draggedTopicId === targetId) return;
+
+    const newTopics = [...topics];
+    const draggedIndex = newTopics.findIndex(t => t.id === draggedTopicId);
+    const targetIndex = newTopics.findIndex(t => t.id === targetId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const [draggedItem] = newTopics.splice(draggedIndex, 1);
+    newTopics.splice(targetIndex, 0, draggedItem);
+
+    onReorderTopics(newTopics);
+    setDraggedTopicId(null);
+  };
 
   return (
     <aside className={cn("flex flex-col bg-white border-r border-orange-50 w-72 shrink-0 transition-transform duration-300", className)}>
@@ -111,17 +141,22 @@ export default function Sidebar({ topics = [], languages = [], isAdmin, onClose,
           <div className="space-y-1">
             <label className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Access</label>
             <div className="flex flex-col gap-1 mt-2 max-h-60 overflow-y-auto">
-              {topics.slice(0, 10).map(topic => (
+              {topics.slice(0, 15).map((topic, index) => (
                 <NavLink 
                   key={topic.id} 
                   to={`/admin/topic/${topic.id}`} 
                   onClick={onClose}
+                  draggable={isAdmin}
+                  onDragStart={(e) => onDragStart(e, topic.id)}
+                  onDragOver={onDragOver}
+                  onDrop={(e) => onDrop(e, topic.id)}
                   className={({ isActive }) => cn(
-                    "nav-link text-sm truncate p-2 rounded-lg hover:bg-slate-100 flex items-center gap-2",
-                    isActive && "bg-primary-50 text-primary-600"
+                    "nav-link text-sm truncate p-2 rounded-lg hover:bg-slate-100 flex items-center gap-2 cursor-grab active:cursor-grabbing transition-all",
+                    isActive && "bg-primary-50 text-primary-600",
+                    draggedTopicId === topic.id && "opacity-40 scale-95 border-2 border-dashed border-primary-400"
                   )}
                 >
-                  <BookOpen className="w-4 h-4 shrink-0" />
+                  <BookOpen className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" />
                   <span className="truncate">{topic.title}</span>
                 </NavLink>
               ))}

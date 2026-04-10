@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { BookOpen, Calendar, ChevronRight } from 'lucide-react';
+import { BookOpen, Calendar, ChevronRight, ArrowUp, ArrowDown, Plus } from 'lucide-react';
 import * as api from '../utils/api';
 import hljs from 'highlight.js';
 
-export default function LanguageTopics({ languages }) {
+export default function LanguageTopics({ languages, user }) {
   const { id } = useParams();
   const location = useLocation();
   const [topics, setTopics] = useState([]);
@@ -16,7 +16,7 @@ export default function LanguageTopics({ languages }) {
     if (id) {
       fetchLanguageTopics();
     } else {
-        fetchAllTopics();
+      fetchAllTopics();
     }
   }, [id]);
 
@@ -58,19 +58,58 @@ export default function LanguageTopics({ languages }) {
       const res = await api.getTopics();
       setTopics(res.data);
     } catch (error) {
-        console.error("Error fetching all topics:", error);
+      console.error("Error fetching all topics:", error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   }
 
+  const handleReorder = async (newTopics) => {
+    const originalTopics = [...topics];
+    setTopics(newTopics);
+    try {
+      await api.reorderTopics(newTopics.map(t => t.id));
+    } catch (error) {
+      console.error("Error reordering topics:", error);
+      setTopics(originalTopics);
+      alert("Failed to save new order. Please try again.");
+    }
+  };
+
+  const handleMoveUp = (index) => {
+    if (index === 0) return;
+    const newTopics = [...topics];
+    const temp = newTopics[index];
+    newTopics[index] = newTopics[index - 1];
+    newTopics[index - 1] = temp;
+    handleReorder(newTopics);
+  };
+
+  const handleMoveDown = (index) => {
+    if (index === topics.length - 1) return;
+    const newTopics = [...topics];
+    const temp = newTopics[index];
+    newTopics[index] = newTopics[index + 1];
+    newTopics[index + 1] = temp;
+    handleReorder(newTopics);
+  };
+
   return (
-    <div className="space-y-8 pb-12">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-          {currentLanguage ? <span className="text-gradient">{currentLanguage.name}</span> : 'Explore All Topics'}
-        </h1>
-        <p className="text-slate-500 text-lg font-medium">Curated study notes for your learning journey.</p>
+    <div className="space-y-8 pb-12 px-4 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            {currentLanguage ? <span className="text-gradient">{currentLanguage.name}</span> : 'Explore All Topics'}
+          </h1>
+          <p className="text-slate-500 text-base sm:text-lg font-medium">Curated study notes for your learning journey.</p>
+        </div>
+        <Link
+          to="/add-topic"
+          state={{ languageId: id }}
+          className="flex items-center justify-center gap-2 bg-black text-white px-6 py-3 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg active:scale-95"
+        >
+          <Plus className="w-5 h-5" /> Add Topic
+        </Link>
       </div>
 
       {loading ? (
@@ -89,29 +128,55 @@ export default function LanguageTopics({ languages }) {
       ) : (
         <div className="space-y-4 w-full">
           {topics.map((topic, index) => (
-            <div 
-              key={topic.id} 
+            <div
+              key={topic.id}
               id={`topic-${topic.id}`}
               className="group animate-in fade-in slide-in-from-bottom-4 duration-700 p-1 scroll-mt-20"
             >
-              <div className="space-y-1">
-                <h3 className="text-xl sm:text-2xl font-bold text-black tracking-tight leading-tight">
-                  <span className="mr-3">{index + 1}.</span>{topic.title}
-                </h3>
-                
-                <div className="pl-0 sm:pl-8">
-                  <div 
-                    className="text-slate-700 text-[20px] leading-relaxed font-normal ql-editor !p-0"
-                    dangerouslySetInnerHTML={{ __html: topic.content }}
-                  />
-                  
-                  {topic.language_name && (
-                    <div className="mt-4 pt-2 border-t border-slate-50">
-                      <span className="px-3 py-1 bg-orange-50 text-orange-600 text-[9px] font-black uppercase tracking-[0.2em] rounded-full ring-1 ring-orange-100">
-                        {topic.language_name}
-                      </span>
+              <div className="space-y-0">
+                <div className="flex items-start justify-between">
+                  <h3 className="text-xl sm:text-2xl font-bold text-black tracking-tight leading-tight flex-1">
+                    <span className="mr-3">{index + 1}.</span>{topic.title}
+                  </h3>
+                  {user && (
+                    <div className="flex items-center gap-1 sm:gap-2 ml-4">
+                      <button
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0}
+                        className={`p-2 rounded-xl transition-all ${index === 0 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-black hover:bg-slate-100 active:scale-90'}`}
+                        title="Move Up"
+                      >
+                        <ArrowUp className="w-4 h-4 sm:w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index === topics.length - 1}
+                        className={`p-2 rounded-xl transition-all ${index === topics.length - 1 ? 'text-slate-200 cursor-not-allowed' : 'text-slate-400 hover:text-black hover:bg-slate-100 active:scale-90'}`}
+                        title="Move Down"
+                      >
+                        <ArrowDown className="w-4 h-4 sm:w-5 h-5" />
+                      </button>
                     </div>
                   )}
+                </div>
+
+                <div className="pl-0">
+                  <div
+                    className="text-slate-700 text-lg sm:text-[20px] leading-relaxed font-normal ql-editor !p-0"
+                    dangerouslySetInnerHTML={{ __html: topic.content }}
+                  />
+
+                  <div className=" flex flex-wrap items-center gap-4 pt-3 border-t border-slate-50">
+                    {topic.language_name && (
+                      <span className="px-2 py-0.5 bg-slate-50 text-slate-500 text-[9px] font-bold uppercase tracking-widest rounded-md border border-slate-100">
+                        {topic.language_name}
+                      </span>
+                    )}
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(topic.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

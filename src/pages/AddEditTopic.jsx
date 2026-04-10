@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Save, X, ArrowLeft, BookOpen, Clock, Tag, Sparkles, Layout, TextIcon, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactQuill from 'react-quill-new';
@@ -9,12 +9,13 @@ import * as api from '../utils/api';
 export default function AddEditTopic({ topics = [], languages = [], onSave }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const isEditing = !!id;
 
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    language_id: ''
+    language_id: location.state?.languageId || ''
   });
   const [loading, setLoading] = useState(isEditing);
 
@@ -71,7 +72,13 @@ export default function AddEditTopic({ topics = [], languages = [], onSave }) {
     } else {
       onSave(formData);
     }
-    navigate('/admin');
+    
+    // Smart navigation
+    if (window.location.pathname.startsWith('/admin')) {
+      navigate('/admin');
+    } else {
+      navigate(formData.language_id ? `/language/${formData.language_id}` : '/');
+    }
   };
 
   if (loading) return (

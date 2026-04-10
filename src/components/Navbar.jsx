@@ -29,12 +29,11 @@ export default function Navbar({ onOpenSidebar, user, onLogout }) {
           />
         </div>
         
-        {user && (
-          <NavLink to="/admin/add" className="btn btn-primary h-10 px-4 whitespace-nowrap">
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Topic</span>
-          </NavLink>
-        )}
+        <NavLink to={user ? "/admin/add" : "/add-topic"} className="btn btn-primary h-10 px-4 whitespace-nowrap">
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Add Topic</span>
+        </NavLink>
+
         
         <button className="p-2 text-slate-500 hover:bg-orange-50 rounded-lg relative transition-all group">
           <Bell className="w-5 h-5 group-hover:text-orange-500" />
