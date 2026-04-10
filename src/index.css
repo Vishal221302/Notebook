@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import "react-quill-new/dist/quill.snow.css";
 @import "highlight.js/styles/atom-one-dark.css";
 
@@ -72,7 +72,7 @@
   --color-primary-700: #c2410c;
   --color-primary-800: #9a3412;
   --color-primary-900: #7c2d12;
-  --font-sans: "Lato", "sans-serif";
+  --font-sans: "Roboto", "sans-serif";
   --background-premium: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
 }
 
